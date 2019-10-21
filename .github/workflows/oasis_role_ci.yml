@@ -28,7 +28,7 @@ jobs:
       # https://github.com/actions/checkout
       - uses: actions/checkout@master
       # https://github.com/actions/setup-python
-      - uses: action/setup-python@master
+      - uses: actions/setup-python@master
         with:
           python-version: ${{ matrix.python }}
           architecture: x64
