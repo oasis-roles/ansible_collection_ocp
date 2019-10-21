@@ -14,7 +14,6 @@ on:
 jobs:
   molecule_test:
     name: Run Molecule Tests on Python ${{ matrix.python }}
-    needs: install_deps
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,6 +32,8 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           architecture: x64
+      - name: Ensure pip is installed and up to date
+        run: python -m pip install --upgrade pip
       - name: Install test dependencies
         run: pip install ansible ansible-lint yamllint flake8 molecule docker
       - name: Print installed versions
