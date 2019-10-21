@@ -1,0 +1,46 @@
+name: oasis_role_ci
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  push:
+    branches:
+      - master
+  schedule:
+    # weekly cron
+    - cron: '0 0 * * *'
+jobs:
+  molecule_test:
+    name: Run Molecule Tests on Python ${{ matrix.python }}
+    needs: install_deps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python:
+          - '2.7'
+          - '3.7'
+        scenario:
+          - default
+    steps:
+      # @master references the version of the checkout action to use,
+      # not the branch to check out for testing
+      # https://github.com/actions/checkout
+      - uses: actions/checkout@master
+      # https://github.com/actions/setup-python
+      - uses: action/setup-python@master
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: x64
+      - name: Install test dependencies
+        run: pip install ansible ansible-lint yamllint flake8 molecule docker
+      - name: Print installed versions
+        run: |
+          ansible --version
+          ansible-lint --version
+          yamllint --version
+          flake8 --version
+          molecule --version
+      - name: Run molecule tests
+        run: molecule test -s ${{ matrix.scenario }}
