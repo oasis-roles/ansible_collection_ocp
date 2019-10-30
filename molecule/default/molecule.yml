@@ -1,0 +1,42 @@
+dependency:
+  name: galaxy
+  options:
+    role-file: molecule/shared/requirements.yml
+driver:
+  # Since this role only messes with ansible vars, provisioning can be
+  # delegated and all work can be done on localhost.
+  name: delegated
+  options:
+    managed: false
+    ansible_connection_options:
+      ansible_connection: local
+lint:
+  name: yamllint
+  options:
+    config-file: tests/yamllint.yml
+platforms:
+  - name: index_href
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+scenario:
+  # Role tasks are delegated to localhost, and idempotence is not needed,
+  # so modify major sequences to no-op for create, destroy, and idempotence.
+  create_sequence: []
+  destroy_sequence: []
+  converge_sequence:
+    - converge
+  check_sequence:
+    - converge
+    - check
+  test_sequence:
+    - lint
+    - syntax
+    - converge
+verifier:
+  name: testinfra
+  options:
+    v: true
+  lint:
+    name: flake8
