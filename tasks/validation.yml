@@ -1,0 +1,30 @@
+# Since this role can potentially take a very long time to run,
+# ensure that mandatory vars are defined, and fail with useful
+# error messages now, before getting into the long-running tasks.
+- name: Ensure config is generated when running installer
+  set_fact:
+    ocp_install_generate_config: true
+  when: ocp_install_create_cluster
+
+- name: Check required vars for downloading installer
+  assert:
+    that: "{{ vars[item] is defined }}"
+    msg: "{{ item }} var must be defined to continue"
+  loop:
+    - ocp_install_url
+
+- name: Check required vars for generating install config
+  assert:
+    that: "{{ vars[item] is defined }}"
+    msg: "{{ item }} var must be defined to continue"
+  loop:
+    - ocp_install_api_version
+    - ocp_install_base_domain
+    - ocp_install_metadata
+    - ocp_install_platform
+    - ocp_install_pull_secrets
+  when:
+    # don't bother with validation unless generating a config
+    # and using the default template
+    - ocp_install_generate_config
+    - ocp_install_config_template == 'ocp_install_default_config.yaml'

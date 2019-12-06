@@ -1,0 +1,52 @@
+- name: Ensure download location exists
+  file:
+    state: directory
+    path: "{{ ocp_install_tmp_dir }}"
+
+- name: Determine local install archive filename
+  set_fact:
+    ocp_install_archive_filename: >-
+     {{ ocp_install_url | urlsplit('path') | basename }}
+
+- name: Determine local install absolute path
+  set_fact:
+    ocp_install_archive_path: >-
+     {{ '/'.join([ocp_install_tmp_dir, ocp_install_archive_filename]) }}
+
+- name: Download install archive
+  get_url:
+    url: "{{ ocp_install_url }}"
+    dest: "{{ ocp_install_archive_path }}"
+
+- name: Unpack install archive
+  unarchive:
+    remote_src: true
+    src: "{{ ocp_install_archive_path }}"
+    dest: "{{ ocp_install_tmp_dir }}"
+
+- name: Inspect unpacked archive structure
+  stat:
+    path: "{{ '/'.join([ocp_install_tmp_dir, item]) }}"
+  loop:
+    - openshift-install
+  register: ocp_install_stat
+
+- name: Ensure archive structure matches role expectations
+  assert:
+    that: item.stat.exists
+  loop: "{{ ocp_install_stat.results }}"
+
+- name: Install binaries
+  copy:
+    remote_src: true
+    src: "{{ '/'.join([ocp_install_tmp_dir, item]) }}"
+    dest: "{{ '/'.join([ocp_install_path, item]) }}"
+    mode: 0o0755
+  loop:
+    - openshift-install
+
+- name: Clean up temporary directory
+  file:
+    state: absent
+    path: "{{ ocp_install_tmp_dir }}"
+  when: ocp_install_clean_tmp_dir

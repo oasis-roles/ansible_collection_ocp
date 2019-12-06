@@ -1,0 +1,28 @@
+# role config vars
+# ocp_install_url - required with no default
+ocp_install_path: /usr/local/bin/
+ocp_install_tmp_dir: /tmp/ocp_install_unpack
+ocp_install_clean_tmp_dir: false
+ocp_install_config_dir: "{{ '~/ocp_install' | expanduser }}"
+ocp_install_config_template: ocp_install_default_config.yaml
+ocp_install_generate_config: false
+ocp_install_create_cluster: false
+ocp_install_create_cluster_log_level: info
+
+# ocp_install_archive_filename - intentionally undefined
+
+# no privilege escalation by default
+ocp_install_become: false
+ocp_install_become_user: root
+
+# vars used in generating the config are required and not defaulted,
+# but only when generating a config with the builtin default template
+# ocp_install_api_version
+# ocp_install_base_domain
+# ocp_install_compute
+# ocp_install_control_plane
+# ocp_install_metadata
+# ocp_install_networking
+# ocp_install_platform
+# ocp_install_pull_secrets
+# ocp_install_ssh_pubkey

@@ -1,0 +1,57 @@
+{# comment
+ocp_install_[json|yaml] filters are used for convenience, and are
+equivalent to:
+  {{ value | to_name_<format>(indent=2) | trim | indent(width=2, first=True) }}
+
+This filter combo lets the role pretty easily embed json/yaml inside this yaml
+template with the correct indent for a toplevel key.
+Additionally, the filtered value can be specified as mandatory by passing
+`True` as the first positional argument, or the 'mandatory=True' kwarg.
+
+Deciding what's mandatory and what isn't, as well as knowing what keys exist
+at the top level of the install config, is done based on this doc:
+https://github.com/openshift/installer/blob/master/docs/user/customization.md
+
+When updating this template, please remember to update the list in the README
+of vars used by this template.
+-#}
+# {{ ansible_managed }}
+{% if ocp_install_additional_trust_bundle is defined %}
+additionalTrustBundle: {{ ocp_install_additional_trust_bundle }}
+{% endif -%}
+apiVersion: {{ ocp_install_api_version | mandatory }}
+baseDomain: {{ ocp_install_base_domain | mandatory }}
+{% if ocp_install_compute is defined %}
+compute:
+  {{ ocp_install_compute | ocp_install_yaml }}
+{% endif -%}
+{% if ocp_install_control_plane is defined %}
+controlPlane:
+  {{ ocp_install_control_plane | ocp_install_yaml }}
+{% endif -%}
+{% if ocp_install_fips is defined %}
+fips: {{ ocp_install_fips | bool }}
+{% endif -%}
+{% if ocp_install_image_content_sources is defined %}
+imageContentSources:
+  {{ ocp_install_image_content_sources | ocp_install_yaml }}
+{% endif -%}
+metadata:
+  {{ ocp_install_metadata | ocp_install_yaml(True) }}
+{% if ocp_install_networking is defined %}
+networking:
+  {{ ocp_install_networking | ocp_install_yaml }}
+{% endif -%}
+platform:
+  {{ ocp_install_platform | ocp_install_yaml(True) }}
+{% if ocp_install_proxy is defined %}
+proxy: {{ ocp_install_proxy }}
+{% endif -%}
+{% if ocp_install_publish is defined %}
+publish: {{ ocp_install_publish }}
+{% endif -%}
+pullSecret: |-
+  {{ ocp_install_pull_secrets | ocp_install_json(True) }}
+{% if ocp_install_ssh_pubkey is defined %}
+sshKey: {{ ocp_install_ssh_pubkey }}
+{% endif -%}
