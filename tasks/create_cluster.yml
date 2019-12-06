@@ -1,0 +1,7 @@
+- name: Run openshift-install create cluster
+  command: >-
+    openshift-install create cluster
+    --dir "{{ ocp_install_config_dir }}"
+    --log-level "{{ ocp_install_create_cluster_log_level }}"
+  register: ocp_install_create_cluster_cmd
+  when: ocp_install_create_cluster

@@ -1,0 +1,17 @@
+# basic input validation, including checks for mandatory vars
+# done at the start so broken configs fail fast
+- include_tasks: validation.yml
+
+- block:
+    # download and install tasks always run, idempotence is handled by the modules
+    - include_tasks: download_installer.yml
+
+    # conditional post-install tasks
+    - include_tasks: generate_config.yml
+      when: ocp_install_generate_config
+
+    - include_tasks: create_cluster.yml
+      when: ocp_install_create_cluster
+
+  become: "{{ ocp_install_become }}"
+  become_user: "{{ ocp_install_become_user }}"
