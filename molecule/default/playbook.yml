@@ -1,0 +1,13 @@
+- name: converge
+  hosts: ocp_client_install
+  gather_facts: false
+  vars:
+    # trailing slash is important here
+    ocp_installers_index_url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/
+    ocp_installers_index: "{{ query('url', ocp_installers_index_url) }}"
+    ocp_client_install_url: >-
+        {{ query('index_href', ocp_installers_index, 'client-linux',
+           base_url=ocp_installers_index_url) }}
+  roles:
+    - ocp_client_install
+    - oasis_roles.index_href
