@@ -15,7 +15,6 @@ def indent_yaml(value, mandatory=False):
 
 
 def indent(value, out_fmt, mandatory):
-    # [| mandatory] | to_nice_yaml(indent=2) | trim | indent(width=2, first=True)
     indent = 2
     fmt_filter = getattr(ansible_filter, 'to_nice_{}'.format(out_fmt))
 

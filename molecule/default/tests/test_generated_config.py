@@ -9,5 +9,5 @@ def expected_config(request):
 
 
 def test_install_config_contents(host, expected_config):
-    generated_config = host.file('/ocp_install/install-config.yaml').content_string
-    assert generated_config == expected_config
+    generated = host.file('/ocp_install/install-config.yaml').content_string
+    assert generated == expected_config
