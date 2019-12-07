@@ -25,7 +25,7 @@ Currently the following variables are supported:
 * `ocp_install_url` - Required, http(s) URL to the OCP Installer archive. A recipe for
   setting this automatically is included in the examples below.
 * `ocp_install_path` - Default: `/usr/local/bin/`. Destination directory for installed
-   openshift-installer` binary. This location should be in the system `PATH`.
+   `openshift-installer` binary. This location should be in the system `PATH`.
 * `ocp_install_tmp_dir` - Default: `/tmp/ocp_install`. Directory on the target host
    where downloaded `openshift-install` archive will be extracted.
 * `ocp_install_clean_tmp_dir` - Default: `false`. For the purposes of idempotence,
