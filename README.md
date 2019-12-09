@@ -61,7 +61,7 @@ Directly download with absolute URL to archive
 
 ```
 
-Use the `[index_href](https://galaxy.ansible.com/oasis_roles/index_href)` role
+Use the [`index_href`](https://galaxy.ansible.com/oasis_roles/index_href) role
 to automatically determine latest OCP Client archive URL:
 
 ```yaml
