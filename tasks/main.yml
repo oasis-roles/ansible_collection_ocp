@@ -6,12 +6,20 @@
     # download and install tasks always run, idempotence is handled by the modules
     - include_tasks: download_installer.yml
 
-    # conditional post-install tasks
     - include_tasks: generate_config.yml
       when: ocp_install_generate_config
 
+    - name: Calculate async retries
+      set_fact:
+        ocp_install_async_retries: >-
+          {{ ocp_install_async_timeout // ocp_install_async_poll }}
+
+    # conditional post-install tasks
     - include_tasks: create_cluster.yml
       when: ocp_install_create_cluster
+
+    - include_tasks: destroy_cluster.yml
+      when: ocp_install_destroy_cluster
 
   become: "{{ ocp_install_become }}"
   become_user: "{{ ocp_install_become_user }}"

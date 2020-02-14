@@ -25,12 +25,14 @@ Currently the following variables are supported:
 * `ocp_install_url` - Required, http(s) URL to the OCP Installer archive. A recipe for
   setting this automatically is included in the examples below.
 * `ocp_install_path` - Default: `/usr/local/bin/`. Destination directory for installed
-   `openshift-installer` binary. This location should be in the system `PATH`.
+  `openshift-installer` binary.
 * `ocp_install_tmp_dir` - Default: `/tmp/ocp_install`. Directory on the target host
    where downloaded `openshift-install` archive will be extracted.
 * `ocp_install_clean_tmp_dir` - Default: `false`. For the purposes of idempotence,
   the `ocp_install_tmp_dir` directory is not removed by this role by default.
   Set this to `true` to cause this role to clean up the `ocp_install_dir`.
+* `ocp_install_log_level` - Default: `info`. Log level used when calling `openshift-installer`
+  commands. Valid log levels include `debug`, `info`, `warn`, and `error`.
 
 ### `install-config.yaml` Generation
 
@@ -84,19 +86,44 @@ by this role. The following vars are supported for these purpose:
 
 * `ocp_install_create_cluster` - Default: `false`. If `true`, the `openshift-install
   create cluster` subcommand will be run as described below.
-* `ocp_install_create_cluster_log_level` - Default: `info`. Valid log levels include
-  `debug`, `info`, `warn`, and `error`.
+* `ocp_install_destroy_cluster_on_failure`: Default `false`. If `true`, the role will
+  run `openshift-install destroy cluster` to clean up created resources before exiting.
 
 Specifically, this documented invocation in the OSP 4.x installation documentation
 will be run if `ocp_install_create_cluster` is set to `true`:
 
 ```
 openshift-install create cluster --dir=<ocp_install_config_dir> \
-    --log-level=<ocp_install_create_cluster_log_level>
+    --log-level=<ocp_install_log_level>
 ```
 
-The result of the `openshift-install create cluster` command is registered in
-the `ocp_install_create_cluster_cmd` fact for inspection in later tasks, if needed.
+### Destroy Cluster
+
+In addition to creating a cluster, `openshift-install destroy cluster` is also
+supported.
+
+* `ocp_install_destroy_cluster` - Default: `false`. If `true`, the `openshift-install
+  destroy cluster` subcommand will be run.
+
+This command should only be run in an `ocp_install_config_dir` where an installation has
+already been attempted, and is included here for use in automation, where a created
+cluster is expected to be destroyed at the end of a test run.
+
+To automatically destroy a cluster if creation fails, set
+`ocp_install_destroy_cluster_on_failure` to `true` as described in the previous section.
+
+### async
+
+Because both the `create cluster` and `destroy cluster` commands take a while to run, and
+in particular may take longer than the underlying connection timeout, async polling is used
+on these processes. By default, this role will wait 3600 seconds (one hour) for these commands
+to complete, polling every 10 seconds. These values can be changed as-needed with the following
+role variables:
+
+* `ocp_install_async_timeout` - Total number of seconds to wait for an async command to complete,
+  default `3600` seconds.
+* `ocp_install_async_poll` - How frequently to poll an async command for completion, default `10`
+  seconds.
 
 ### Privilege Escalation
 
