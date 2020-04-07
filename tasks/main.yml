@@ -9,6 +9,18 @@
     - include_tasks: generate_config.yml
       when: ocp_install_generate_config
 
+    - include_tasks: credentials_aws.yml
+      when: ocp_install_aws_creds_file is defined
+
+    - include_tasks: credentials_azure.yml
+      when: ocp_install_azure_creds_file is defined
+
+    - include_tasks: credentials_gcp.yml
+      when: ocp_install_gcp_creds_file is defined
+
+    - include_tasks: credentials_openstack.yml
+      when: ocp_install_openstack_creds_file is defined
+
     - name: Calculate async retries
       set_fact:
         ocp_install_async_retries: >-

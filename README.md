@@ -112,6 +112,80 @@ cluster is expected to be destroyed at the end of a test run.
 To automatically destroy a cluster if creation fails, set
 `ocp_install_destroy_cluster_on_failure` to `true` as described in the previous section.
 
+### Credentials Installation
+
+For each platform, `openshift-install` looks for that platform's credentials in a specific
+and predictable location. Each platform's credentials file can be installed by naming a
+file local to the Ansible control machine to use in that platform's corresponding 
+`ocp_install_*_creds_file` role variable. **Note that credentials files on the target
+machine(s) will be overwritten when configured to do so with these variables.**
+
+When not provided via the OpenShift Container Platform installation documentation,
+example credentials files have been provided.
+
+#### AWS
+
+* `ocp_install_aws_creds_file` - Credentials file on Ansible control machine to copy to
+  the host running `openshift-install` to allow the installer to access this platform,
+  containing an AWS account access key pair.
+
+Example Format:
+```ini
+; https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html
+[default]
+aws_access_key_id     = your_access_key_id_here
+aws_secret_access_key = your_secret_access_key_here
+```
+
+#### Azure
+
+* `ocp_install_azure_creds_file` - Credential file on Ansible control machine to copy to
+  the host running `openshift-install` to allow the installer to access this platform,
+  containing Azure Service Principal credentials.
+
+Example Format:
+```
+{
+    "subscriptionId": "put",
+    "clientId": "your",
+    "clientSecret": "credentials",
+    "tenantId": "here"
+}
+```
+
+#### GCP
+
+* `ocp_install_gcp_creds_file` - Credential file on Ansible control machine to copy to
+  the host running `openshift-install` to allow the installer to access this platform,
+  containing GCP Service Account credentials.
+
+Example Format:
+```yaml
+{
+  "type": "service_account",
+  "project_id": "project",
+  "private_key_id": "0000000000000000000000000000000000000000",
+  "private_key": "-----BEGIN PRIVATE KEY-----\n...\n",
+  "client_email": "your@project.iam.gserviceaccount.com",
+  "client_id": "12345",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/your%40project.iam.gserviceaccount.com"
+}
+```
+
+#### OpenStack
+
+* `ocp_install_openstack_creds_file` - Credential file on Ansible control machine to copy
+  to the host running `openshift-install` to allow the install access to this platform,
+  which is expected to be a working [clouds.yaml] file.
+
+Splitting secrets is not supported by this role; only `clouds.yaml` is supported, not
+`secure.yaml`. The cloud, or one of the clouds, defined in this file should match the 
+cloud named in the `ocp_install_platform`, and other `install-config.yaml` values that
+reference OpenStack clouds by their defined name in `clouds.yaml`.
+
 ### async
 
 Because both the `create cluster` and `destroy cluster` commands take a while to run, and
@@ -258,3 +332,4 @@ Sean Myers <semyers@redhat.com>
 [openshift-install customization]: https://github.com/openshift/installer/blob/master/docs/user/customization.md#platform-customization
 [index_href]: https://github.com/oasis-roles/index_href
 [ocp_pull_secrets]: https://github.com/oasis-roles/ocp_pull_secrets
+[clouds.yaml]: https://access.redhat.com/documentation/en-us/openshift_container_platform/4.2/html/installing_on_openstack/installing-on-openstack#installation-osp-describing-cloud-parameters_installing-openstack-installer-custom
