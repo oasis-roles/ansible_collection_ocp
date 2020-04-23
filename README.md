@@ -105,7 +105,8 @@ Example Playbook
 
 ### GCP
 
-Create a new zone, "oasis.parentzone.example.com", 
+Create a new zone, "oasis.parentzone.example.com", and also create NS records in the parent
+zone to delegate authority to the new zone.
 
 ```yaml
 - hosts: ocp_cloud_dns-servers
