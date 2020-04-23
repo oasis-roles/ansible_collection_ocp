@@ -1,0 +1,30 @@
+# loop facts are set here so that
+#  1) users don't have to be responsible for this entire crazy structure
+#  2) separate tasks aren't needed for each combo of A/AAAA and hostname
+- name: Set zone rrset loop facts
+  set_fact:
+    ocp_cloud_dns_lb_loop_data:
+      - type: A
+        records: "{{ ocp_cloud_dns_lb_hosts_v4 | dict2items }}"
+      - type: AAAA
+        records: "{{ ocp_cloud_dns_lb_hosts_v6 | dict2items }}"
+    # etcd is broken out into a separate group so that SRV records
+    # can be created for these hosts
+    ocp_cloud_dns_etcd_loop_data:
+      - type: A
+        records: "{{ ocp_cloud_dns_etcd_hosts_v4 | dict2items }}"
+      - type: AAAA
+        records: "{{ ocp_cloud_dns_etcd_hosts_v6 | dict2items }}"
+
+- name: Set zone rrset combined cluster loop fact
+  set_fact:
+    ocp_cloud_dns_combined_loop_data: >
+      {{ ocp_cloud_dns_lb_loop_data + ocp_cloud_dns_etcd_loop_data }}
+
+# Since the DNS tasks were prototyped in GCP, all the comments
+# about the various tasks are mostly in gcp.yml.
+- name: Update OCP DNS records in GCP zone
+  include_tasks: gcp.yml
+  when: ocp_cloud_dns_gcp is defined
+
+# Coming Soon: Azure & AWS Support
