@@ -4,7 +4,12 @@
 - name: Ensure config is generated when running installer
   set_fact:
     ocp_install_generate_config: true
-  when: ocp_install_create_cluster
+  # All of these commands require a config to be generated prior
+  # to running to prevent users being prompted during the run.
+  when: >
+    ocp_install_create_cluster or
+    ocp_install_create_manifests or
+    ocp_install_create_ignition_configs
 
 - name: Check required vars for downloading installer
   assert:

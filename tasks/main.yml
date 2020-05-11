@@ -33,5 +33,11 @@
     - include_tasks: destroy_cluster.yml
       when: ocp_install_destroy_cluster
 
+    - include_tasks: create_manifests.yml
+      when: ocp_install_create_manifests
+
+    - include_tasks: create_ignition_configs.yml
+      when: ocp_install_create_ignition_configs
+
   become: "{{ ocp_install_become }}"
   become_user: "{{ ocp_install_become_user }}"

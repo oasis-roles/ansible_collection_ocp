@@ -1,0 +1,6 @@
+- name: Run openshift-install create ignition-configs
+  command: >-
+    {{ ocp_install_path }}/openshift-install create ignition-configs
+    --dir "{{ ocp_install_config_dir }}"
+    --log-level "{{ ocp_install_log_level }}"
+  when: ocp_install_create_ignition_configs

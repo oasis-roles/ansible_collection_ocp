@@ -69,7 +69,11 @@ corresponds to the `apiVersion` configuration key in `install-config.yaml`.
 * `ocp_install_ssh_pubkey`
 
 If using the default template, this role will raise an error if any required variables
-are not defined.
+are not defined. Even if all variables are defined, it's still possible for the
+`openshift-install` command to block on user input. It is recommended to run
+`openshift-install create install-config` manually to ensure all of the potentially
+blocking user prompts are answered before converting the generated `install-config.yaml`
+to ansible vars for use with this role.
 
 See some detailed usage of these vars in the [Examples] section below. More information
 about them can also be found in the [openshift-install customization] docs.
@@ -79,7 +83,7 @@ to the location of the pre-made file on the Ansible control machine. Ansible tem
 will still be done using this file, but if no `{{ vars }}` are referenced in the file,
 no replacement will be done.
 
-### Create Cluster
+### Create Cluster for Installer-Provisioned Infrastructure
 
 A basic version of the `openshift-install create cluster` subcommand is supported
 by this role. The following vars are supported for these purpose:
@@ -95,6 +99,44 @@ will be run if `ocp_install_create_cluster` is set to `true`:
 ```
 openshift-install create cluster --dir=<ocp_install_config_dir> \
     --log-level=<ocp_install_log_level>
+```
+
+### Generating manifests and ignition configs for User-Provisioned Infrastructure
+
+* `ocp_install_create_manifests` - Default: `false`. If `true`, run
+  `openshift-install create manifests`, writing manifests to `ocp_install_config_dir`.
+* `ocp_install_create_ignition_configs` - Default: `false`. If `true`, run
+  `openshift-install create ignition-configs`, writing the `.ign` files to
+  `ocp_install_config_dir`.
+
+While editing the manifests is not directly supported by this role, note that this
+role can be invoked multiple times, if needed, to accomodate workflow customizations.
+
+Here's basic playbook example of this sort of customization:
+
+```yaml
+- name: Generate manifests and customize them
+  hosts: ocp_installers
+  roles:
+    - name: oasis_roles.ocp_install
+      # this example assumes the install-config has already been generated
+      ocp_install_create_manifests: true
+  tasks:
+    - name: Update cluster scheduler to prevent scheduling masters
+      lineinfile:
+        state: present
+        path: "{{ ocp_install_config_dir }}/manifests/cluster-scheduler-02-config.yml"
+        regexp: '(\s+mastersSchedulable:)'
+        backrefs: yes
+        # result should be a correctly-indented 'mastersScedulable: false'
+        line: '\1 false'
+
+- name: Generate ignition configs
+  hosts: ocp_installers
+  roles:
+    - name: oasis_roles.ocp_install
+      # this example assumes the install-config has already been generated
+      ocp_install_create_ignition_configs: true
 ```
 
 ### Destroy Cluster
@@ -116,7 +158,7 @@ To automatically destroy a cluster if creation fails, set
 
 For each platform, `openshift-install` looks for that platform's credentials in a specific
 and predictable location. Each platform's credentials file can be installed by naming a
-file local to the Ansible control machine to use in that platform's corresponding 
+file local to the Ansible control machine to use in that platform's corresponding
 `ocp_install_*_creds_file` role variable. **Note that credentials files on the target
 machine(s) will be overwritten when configured to do so with these variables.**
 
@@ -182,7 +224,7 @@ Example Format:
   which is expected to be a working [clouds.yaml] file.
 
 Splitting secrets is not supported by this role; only `clouds.yaml` is supported, not
-`secure.yaml`. The cloud, or one of the clouds, defined in this file should match the 
+`secure.yaml`. The cloud, or one of the clouds, defined in this file should match the
 cloud named in the `ocp_install_platform`, and other `install-config.yaml` values that
 reference OpenStack clouds by their defined name in `clouds.yaml`.
 
@@ -209,6 +251,25 @@ if needed:
 * `ocp_install_become_user` - Default: root. If the role uses the become
   functionality for privilege escalation, then this is the name of the target
   user to change to.
+
+Idempotence and Usage
+---------------------
+
+The tool that this role wraps is not idempotent, and as a result this role is also not
+written to be idempotent. This is mostly due to `openshift-install` being stateful
+during operation, and also due to its consumption of any generated `install-config.yaml`
+when creating clusters, manifests, or ignition configs.
+
+Furthermore, for the sake of flexibility, this role does not enforce a given order of
+operations; all steps should be run in the correct order if run in a single play, but
+this role will not (for example) ensure that if you're using this role to `create
+ignition-configs` that you aren't also attempting to run `create cluster`.
+
+Finally, this role makes no attempt to prevent the `openshift-install` command from
+blocking on user input. Manual verification of the desired configuration, by manually
+invoking the `openshift-install create install-config` command, should be done to ensure
+that all answers are given to `openshift-install` such that it does not prompt for user
+input.
 
 Dependencies
 ------------
