@@ -130,9 +130,9 @@ zone to delegate authority to the new zone.
       etcd-1: 127.0.1.2
       etcd-2: 127.0.1.3
     ocp_cloud_dns_etcd_hosts_v6:
-      etcd-1: ::1:1
+      etcd-0: ::1:1
       etcd-1: ::1:2
-      etcd-1: ::1:3
+      etcd-2: ::1:3
     # gcp-specific auth using a serviceAccount
     ocp_cloud_dns_gcp:
       project: project-12345
