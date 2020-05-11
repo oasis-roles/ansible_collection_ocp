@@ -40,9 +40,8 @@ and provider-specific variables can be found below.
 
 - `ocp_cloud_dns_lb_hosts_v4` - A mapping of domain names, relative to `ocp_cloud_dns_domain`, to the
   address records to create for each domain name. The mapping key is expected to be one of the load
-  balancer names, and the value is expected to be a single IPv4 address, or an array of them, for each
-  load balancer host's `A` record set. Note that due to the asterisk, the `*.apps` load balancer key
-  must be quotes.
+  balancer names, and the value is expected to be a single IPv4 address for each load balancer host's
+  `A` record set. Note that due to the asterisk, the `*.apps` load balancer key must be quotes.
 - `ocp_cloud_dns_lb_hosts_v6` - Exactly the same as `ocp_cloud_dns_lb_hosts_v4`, but `AAAA` record sets
   are generated for IPv6 addresses.
 - `ocp_cloud_dns_etcd_hosts_v4` - A mapping of domain names, relative to `ocp_cloud_dns_domain`, to
@@ -89,7 +88,7 @@ ocp_cloud_dns_gcp_zone:
   # optional zone params
   dnssec_config:
   labels:
-  name_server_set: 
+  name_server_set:
   private_visibility_config:
   visibility:
 ```
@@ -119,23 +118,21 @@ zone to delegate authority to the new zone.
     ocp_cloud_dns_parent_domain: oasis.parentzone.example.com
     ocp_cloud_dns_no_log: false
     ocp_cloud_dns_lb_hosts_v4:
-      # single strings work
       '*.apps': 127.0.0.2
       api: 127.0.0.1
       api-int: 127.0.1.1
     ocp_cloud_dns_lb_hosts_v6:
-      # arrays also work
-      '*.apps':
-        - ::2
-      api:
-        - ::1
-      api-int:
-        - ::1:1
-    # do not use array values with etcd hosts
+      '*.apps':::2
+      api: ::1
+      api-int: ::1:1
     ocp_cloud_dns_etcd_hosts_v4:
-      etcd0: 127.0.1.2
+      etcd-0: 127.0.1.1
+      etcd-1: 127.0.1.2
+      etcd-2: 127.0.1.3
     ocp_cloud_dns_etcd_hosts_v6:
-      etcd0: ::1:2
+      etcd-1: ::1:1
+      etcd-1: ::1:2
+      etcd-1: ::1:3
     # gcp-specific auth using a serviceAccount
     ocp_cloud_dns_gcp:
       project: project-12345

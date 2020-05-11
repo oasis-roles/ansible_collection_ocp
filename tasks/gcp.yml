@@ -44,6 +44,16 @@
     service_account_file: "{{ ocp_cloud_dns_gcp.service_account_file  | default(omit) }}"
   register: ocp_cloud_dns_zone_info
 
+- name: Ensure zone data was successfully retrieved
+  assert:
+    # If ocp_cloud_dns_zone_info.resource if falsey, something amazing has happened,
+    # since this should be the same zone created/updated in the first task
+    that: ocp_cloud_dns_zone_info.resources.0 is defined
+    msg: >-
+      Unable to retrieve zone information for {{ ocp_cloud_dns_domain }}. Ensure
+      that the domain name specified matches the existing domain name for GCP DNS
+      zone {{ ocp_cloud_dns_gcp_zone.name }}.
+
 # target zone is ocp_cloud_dns_zone_info.resources.0
 # set_fact to make the tasks easier to read
 - name: Set gcp zone shortened name fact

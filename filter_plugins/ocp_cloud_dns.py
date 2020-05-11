@@ -1,7 +1,10 @@
 def zonedot(value, dot_required=True):
+    # value must be a string
+    # adds a trailing 'dot' for a DNS record by default,
+    # ensures no trailing 'dot' if dot_required is False
     if dot_required and not value.endswith('.'):
         value += '.'
-    if not dot_required and value.endswith('.'):
+    if not dot_required:
         value = value.rstrip('.')
     return value
 
@@ -9,5 +12,5 @@ def zonedot(value, dot_required=True):
 class FilterModule(object):
     def filters(self):
         return {
-            'zonedot': zonedot,
+            'zonedot': zonedot
         }
