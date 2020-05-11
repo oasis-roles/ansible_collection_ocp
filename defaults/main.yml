@@ -7,7 +7,11 @@ ocp_install_config_dir: "{{ '~/ocp_install' | expanduser }}"
 ocp_install_config_template: ocp_install_default_config.yaml
 ocp_install_generate_config: false
 ocp_install_create_cluster: false
-ocp_install_create_cluster_log_level: info
+ocp_install_destroy_cluster: false
+ocp_install_log_level: info
+ocp_install_destroy_cluster_on_failure: false
+ocp_install_async_timeout: 3600
+ocp_install_async_poll: 10
 
 # ocp_install_archive_filename - intentionally undefined
 
