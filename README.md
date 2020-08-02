@@ -29,7 +29,7 @@ Currently the following variables are supported:
   setting this automatically is included in the examples below.
 * `ocp_client_install_path` - Default: `/usr/local/bin/`. Destination directory for installed `oc`
    and `kubectl` binaries. This location should be in the system `PATH`.
-* `ocp_client_install_tmpdir` - Default: `/tmp/ocp_client_install`. Direcotry in which to download
+* `ocp_client_install_tmpdir` - Default: `/tmp/ocp_client_install`. Directory in which to download
   the OCP Client archive.
 * `ocp_client_install_cleanup` - Default: `false`. For the purposes of idempotence,
   the `ocp_client_install_tmpdir` directory is not removed by this role by default.
