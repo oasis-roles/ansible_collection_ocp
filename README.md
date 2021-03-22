@@ -128,7 +128,7 @@ Here's basic playbook example of this sort of customization:
         path: "{{ ocp_install_config_dir }}/manifests/cluster-scheduler-02-config.yml"
         regexp: '(\s+mastersSchedulable:)'
         backrefs: yes
-        # result should be a correctly-indented 'mastersScedulable: false'
+        # result should be a correctly-indented 'mastersSchedulable: false'
         line: '\1 false'
 
 - name: Generate ignition configs
