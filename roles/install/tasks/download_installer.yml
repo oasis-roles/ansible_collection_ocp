@@ -2,6 +2,7 @@
   file:
     state: directory
     path: "{{ ocp_install_tmp_dir }}"
+    mode: u+rx
 
 - name: Determine local install archive filename
   set_fact:

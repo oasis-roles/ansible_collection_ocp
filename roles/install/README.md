@@ -388,7 +388,7 @@ Author Information
 
 Sean Myers <semyers@redhat.com>
 
-[the default template]: https://github.com/oasis-roles/ocp_install/blob/master/templates/ocp_install_default_config.yaml
+[the default template]: https://github.com/oasis-roles/ansible_collection_ocp/blob/main/roles/install/templates/ocp_install_default_config.yaml.j2
 [Examples]: #example-playbooks
 [openshift-install customization]: https://github.com/openshift/installer/blob/master/docs/user/customization.md#platform-customization
 [index_href]: https://github.com/oasis-roles/index_href

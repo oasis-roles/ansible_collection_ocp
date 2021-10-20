@@ -2,8 +2,10 @@
   file:
     state: directory
     path: "{{ ocp_install_config_dir }}"
+    mode: u+rx
 
 - name: Generate OCP installer configuration
   template:
     src: "{{ ocp_install_config_template }}"
     dest: "{{ ocp_install_config_dir }}/install-config.yaml"
+    mode: u+r

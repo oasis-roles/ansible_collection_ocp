@@ -4,7 +4,7 @@ ocp_install_path: /usr/local/bin/
 ocp_install_tmp_dir: /tmp/ocp_install_unpack
 ocp_install_clean_tmp_dir: false
 ocp_install_config_dir: "{{ '~/ocp_install' | expanduser }}"
-ocp_install_config_template: ocp_install_default_config.yaml
+ocp_install_config_template: ocp_install_default_config.yaml.j2
 ocp_install_generate_config: false
 ocp_install_create_cluster: false
 ocp_install_destroy_cluster: false

@@ -37,5 +37,4 @@
     ocp_install_config_dir: '/ocp_install'
     ocp_install_ssh_pubkey: 'AAAAFakePubkey=='
   roles:
-    - ocp_install
-    - oasis_roles.index_href
+    - install
