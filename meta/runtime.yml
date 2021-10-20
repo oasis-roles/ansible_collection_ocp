@@ -1,0 +1,6 @@
+# This can be a series of versions of Ansible that this collection
+# requires. In general, collections were not available in Ansible
+# before 2.9, so that's going to be set here as a very minimum
+# value. This value is required by Galaxy to publish modern
+# collections
+requires_ansible: '>=2.9'
