@@ -150,7 +150,7 @@ jobs:
     needs:
       - build  # Only release if the build is good
       - vagrant_build
-    if: github.event_type == "release"
+    if: 'github.event_type == "release"'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
