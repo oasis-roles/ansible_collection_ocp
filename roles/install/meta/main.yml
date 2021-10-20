@@ -1,5 +1,5 @@
 galaxy_info:
-  author: Sean Myers
+  author: oasis_roles
   description: Download and install the oc and kubectl binaries to a specified directory
   company: Red Hat, Inc.
   license: GPLv3
@@ -8,6 +8,7 @@ galaxy_info:
     - name: EL
       versions:
         - 7
+        - 8
 
   galaxy_tags:
     - oasis

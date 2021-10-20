@@ -1,11 +1,5 @@
-dependency:
-  name: galaxy
 driver:
   name: docker
-lint:
-  name: yamllint
-  options:
-    config-file: tests/yamllint.yml
 platforms:
   - name: ocp_install
     image: centos:7
@@ -16,18 +10,5 @@ platforms:
     # volumes:
     #   - /sys/fs/cgroup:/sys/fs/cgroup:ro
 provisioner:
-  name: ansible
-  lint:
-    name: ansible-lint
-  config_options:
-    defaults:
-      stdout_callback: yaml
-      ansible_managed: 'Custom ansible_managed string for testing'
-verifier:
-  name: testinfra
-  options:
-    # Add a -v so you see the individual test names,
-    # particularly useful with parameterized tests
-    vv: true
-  lint:
-    name: flake8
+  playbooks:
+    converge: playbook.yml

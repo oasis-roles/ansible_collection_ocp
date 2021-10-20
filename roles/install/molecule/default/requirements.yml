@@ -1,5 +1,0 @@
-roles:
-  - oasis_roles.molecule_docker_ci
-  # The index_href example in the README exercises the same tasks
-  # that the more basic example uses, so test with index_href.
-  - oasis_roles.index_href
