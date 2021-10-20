@@ -1,0 +1,192 @@
+- name: Create/update GCP Cluster DNS Zone
+  gcp_dns_managed_zone:
+    # these params are required, and not defaulted
+    description: "{{ ocp_cloud_dns_gcp_zone.description }}"
+    dns_name: "{{ ocp_cloud_dns_domain | zonedot }}"
+    name: "{{ ocp_cloud_dns_gcp_zone.name }}"
+    # these params are optional, and defaulted to omit
+    dnssec_config: "{{ ocp_cloud_dns_gcp_zone.dnssec_config | default(omit) }}"
+    labels: "{{ ocp_cloud_dns_gcp_zone.labels | default(omit) }}"
+    name_server_set: "{{ ocp_cloud_dns_gcp_zone.name_server_set | default(omit) }}"
+    private_visibility_config: "{{ ocp_cloud_dns_gcp_zone.private_visibility_config | default(omit) }}"
+    state: "{{ ocp_cloud_dns_state }}"
+    visibility: "{{ ocp_cloud_dns_gcp_zone.visibility | default(omit) }}"
+    # gcp common/auth
+    # the "combine" filter strips out omits, so while it would be nice to
+    # combine a dict of expected params with 'omit' values, the most straight-
+    # forward approach is to individually default to omit for these values
+    auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
+    env_type: "{{ ocp_cloud_dns_gcp.env_type  | default(omit) }}"
+    project: "{{ ocp_cloud_dns_gcp.project  | default(omit) }}"
+    scopes: "{{ ocp_cloud_dns_gcp.scopes  | default(omit) }}"
+    service_account_contents: "{{ ocp_cloud_dns_gcp.service_account_contents  | default(omit) }}"
+    service_account_email: "{{ ocp_cloud_dns_gcp.service_account_email  | default(omit) }}"
+    service_account_file: "{{ ocp_cloud_dns_gcp.service_account_file  | default(omit) }}"
+  register: ocp_cloud_dns_created_zone
+  no_log: false
+  when:
+    - ocp_cloud_dns_create_zone
+    - ocp_cloud_dns_state == 'present'
+
+- name: Gather zone info for cluster domain
+  gcp_dns_managed_zone_info:
+    # DNS implicit trailing '.' is expected to be implicit in GCP,
+    # so the custom "zonedot" filter is used to ensure the dot exists
+    # when it should, and doesn't when it shouldn't.
+    dns_name: "{{ ocp_cloud_dns_domain | zonedot }}"
+    # gcp common/auth
+    auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
+    env_type: "{{ ocp_cloud_dns_gcp.env_type  | default(omit) }}"
+    project: "{{ ocp_cloud_dns_gcp.project  | default(omit) }}"
+    scopes: "{{ ocp_cloud_dns_gcp.scopes  | default(omit) }}"
+    service_account_contents: "{{ ocp_cloud_dns_gcp.service_account_contents  | default(omit) }}"
+    service_account_email: "{{ ocp_cloud_dns_gcp.service_account_email  | default(omit) }}"
+    service_account_file: "{{ ocp_cloud_dns_gcp.service_account_file  | default(omit) }}"
+  register: ocp_cloud_dns_zone_info
+
+- name: Ensure zone data was successfully retrieved
+  assert:
+    # If ocp_cloud_dns_zone_info.resource if falsey, something amazing has happened,
+    # since this should be the same zone created/updated in the first task
+    that: ocp_cloud_dns_zone_info.resources.0 is defined
+    msg: >-
+      Unable to retrieve zone information for {{ ocp_cloud_dns_domain }}. Ensure
+      that the domain name specified matches the existing domain name for GCP DNS
+      zone {{ ocp_cloud_dns_gcp_zone.name }}.
+
+# target zone is ocp_cloud_dns_zone_info.resources.0
+# set_fact to make the tasks easier to read
+- name: Set gcp zone shortened name fact
+  set_fact:
+    ocp_cloud_dns_gcp_zone: "{{ ocp_cloud_dns_zone_info.resources.0 }}"
+
+- block:
+    - name: Gather info about parent domain
+      gcp_dns_managed_zone_info:
+        dns_name: "{{ ocp_cloud_dns_parent_domain | zonedot }}"
+        # gcp common/auth
+        auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
+        env_type: "{{ ocp_cloud_dns_gcp.env_type  | default(omit) }}"
+        project: "{{ ocp_cloud_dns_gcp.project  | default(omit) }}"
+        scopes: "{{ ocp_cloud_dns_gcp.scopes  | default(omit) }}"
+        service_account_contents: "{{ ocp_cloud_dns_gcp.service_account_contents  | default(omit) }}"
+        service_account_email: "{{ ocp_cloud_dns_gcp.service_account_email  | default(omit) }}"
+        service_account_file: "{{ ocp_cloud_dns_gcp.service_account_file  | default(omit) }}"
+      register: ocp_cloud_dns_parent_info
+
+    - name: Add delegation from parent zone to cluster zone
+      gcp_dns_resource_record_set:
+        # feed the output of managed_zone into this to set up delegation
+        name: "{{ ocp_cloud_dns_domain | zonedot }}"
+        # zone_info always returns a list of resources, but only one zone
+        # was requests, so resources.0 is the parent zone info
+        managed_zone: "{{ ocp_cloud_dns_parent_info.resources.0 }}"
+        state: "{{ ocp_cloud_dns_state }}"
+        type: NS
+        ttl: "{{ ocp_cloud_dns_ttl }}"
+        # in the state: absent case, the nameServers attr will not exist
+        target: "{{ ocp_cloud_dns_gcp_zone.nameServers | default([]) }}"
+        # gcp common/auth
+        auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
+        env_type: "{{ ocp_cloud_dns_gcp.env_type  | default(omit) }}"
+        project: "{{ ocp_cloud_dns_gcp.project  | default(omit) }}"
+        scopes: "{{ ocp_cloud_dns_gcp.scopes  | default(omit) }}"
+        service_account_contents: "{{ ocp_cloud_dns_gcp.service_account_contents  | default(omit) }}"
+        service_account_email: "{{ ocp_cloud_dns_gcp.service_account_email  | default(omit) }}"
+        service_account_file: "{{ ocp_cloud_dns_gcp.service_account_file  | default(omit) }}"
+  when: ocp_cloud_dns_parent_domain is defined
+
+- name: Create A/AAAA records for cluster hosts
+  gcp_dns_resource_record_set:
+    managed_zone: "{{ ocp_cloud_dns_gcp_zone }}"
+    state: "{{ ocp_cloud_dns_state }}"
+    type: "{{ item.0.type }}"
+    ttl: "{{ ocp_cloud_dns_ttl }}"
+    name: "{{ item.1.key }}.{{ ocp_cloud_dns_domain | zonedot }}"
+    target: "{{ item.1.value }}"
+    # gcp common/auth
+    auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
+    env_type: "{{ ocp_cloud_dns_gcp.env_type  | default(omit) }}"
+    project: "{{ ocp_cloud_dns_gcp.project  | default(omit) }}"
+    scopes: "{{ ocp_cloud_dns_gcp.scopes  | default(omit) }}"
+    service_account_contents: "{{ ocp_cloud_dns_gcp.service_account_contents  | default(omit) }}"
+    service_account_email: "{{ ocp_cloud_dns_gcp.service_account_email  | default(omit) }}"
+    service_account_file: "{{ ocp_cloud_dns_gcp.service_account_file  | default(omit) }}"
+  # item.0 is the original list entry containing the rrset type, A or AAAA,
+  # item.1 is the individual entry from the records subelement, the {host: addr} pair
+  loop: "{{ ocp_cloud_dns_combined_loop_data | subelements('records') }}"
+  loop_control:
+    # the subelement lookup makes the loop label absolutely useless,
+    # so alter the loop label to make it useful again
+    label: "{{ item.1 | combine({'type': item.0.type}) }}"
+  when: item.0.records
+
+# From here, the SRV records point to the names generated in the previous
+# step, and are v4/v6 agnostic; those host entries are combined.
+# The module params are different from cloud to cloud, so this can't be done
+# generally for all cloud modules, even though the logic will be very similar
+# for each cloud module.
+- name: Generate SRV rrset targets for etcd hosts
+  set_fact:
+    __srv_rrset: >-
+      {{ ocp_cloud_dns_srv_priority }}
+      {{ ocp_cloud_dns_srv_weight }}
+      {{ ocp_cloud_dns_srv_port }}
+      {{ item.key }}.{{ ocp_cloud_dns_domain | zonedot }}
+  loop: >-
+    {{ ocp_cloud_dns_etcd_hosts_v4 |
+       combine(ocp_cloud_dns_etcd_hosts_v6) |
+       dict2items }}
+  register: __srv_rrsets
+
+- name: Compile SRV rrset targets into a single list for generating records
+  set_fact:
+    __combined_srv_rrsets: |
+      {{ __srv_rrsets | json_query('results[*].ansible_facts.__srv_rrset') | unique }}
+
+- name: Create etcd SRV records for cluster members
+  gcp_dns_resource_record_set:
+    managed_zone: "{{ ocp_cloud_dns_gcp_zone }}"
+    state: "{{ ocp_cloud_dns_state }}"
+    type: SRV
+    ttl: "{{ ocp_cloud_dns_ttl }}"
+    name: "_etcd-server-ssl._tcp.{{ ocp_cloud_dns_domain | zonedot }}"
+    target: "{{ __combined_srv_rrsets }}"
+    # gcp common/auth
+    auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
+    env_type: "{{ ocp_cloud_dns_gcp.env_type  | default(omit) }}"
+    project: "{{ ocp_cloud_dns_gcp.project  | default(omit) }}"
+    scopes: "{{ ocp_cloud_dns_gcp.scopes  | default(omit) }}"
+    service_account_contents: "{{ ocp_cloud_dns_gcp.service_account_contents  | default(omit) }}"
+    service_account_email: "{{ ocp_cloud_dns_gcp.service_account_email  | default(omit) }}"
+    service_account_file: "{{ ocp_cloud_dns_gcp.service_account_file  | default(omit) }}"
+  when: __combined_srv_rrsets | count
+
+- name: Delete GCP Cluster DNS Zone
+  gcp_dns_managed_zone:
+    # these params are required, and not defaulted
+    description: "{{ ocp_cloud_dns_gcp_zone.description }}"
+    dns_name: "{{ ocp_cloud_dns_domain | zonedot }}"
+    name: "{{ ocp_cloud_dns_gcp_zone.name }}"
+    # these params are optional, and defaulted to omit
+    dnssec_config: "{{ ocp_cloud_dns_gcp_zone.dnssec_config | default(omit) }}"
+    labels: "{{ ocp_cloud_dns_gcp_zone.labels | default(omit) }}"
+    name_server_set: "{{ ocp_cloud_dns_gcp_zone.name_server_set | default(omit) }}"
+    private_visibility_config: "{{ ocp_cloud_dns_gcp_zone.private_visibility_config | default(omit) }}"
+    state: "{{ ocp_cloud_dns_state }}"
+    visibility: "{{ ocp_cloud_dns_gcp_zone.visibility | default(omit) }}"
+    # gcp common/auth
+    # the "combine" filter strips out omits, so while it would be nice to
+    # combine a dict of expected params with 'omit' values, the most straight-
+    # forward approach is to individually default to omit for these values
+    auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
+    env_type: "{{ ocp_cloud_dns_gcp.env_type  | default(omit) }}"
+    project: "{{ ocp_cloud_dns_gcp.project  | default(omit) }}"
+    scopes: "{{ ocp_cloud_dns_gcp.scopes  | default(omit) }}"
+    service_account_contents: "{{ ocp_cloud_dns_gcp.service_account_contents  | default(omit) }}"
+    service_account_email: "{{ ocp_cloud_dns_gcp.service_account_email  | default(omit) }}"
+    service_account_file: "{{ ocp_cloud_dns_gcp.service_account_file  | default(omit) }}"
+  no_log: false
+  when:
+    - ocp_cloud_dns_destroy_zone
+    - ocp_cloud_dns_state == 'absent'

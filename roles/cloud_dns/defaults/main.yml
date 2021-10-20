@@ -1,0 +1,13 @@
+ocp_cloud_dns_state: present
+ocp_cloud_dns_create_zone: false
+ocp_cloud_dns_destroy_zone: false
+ocp_cloud_dns_parent_domain: null
+ocp_cloud_dns_ttl: 600
+ocp_cloud_dns_srv_priority: 0
+ocp_cloud_dns_srv_weight: 10
+ocp_cloud_dns_srv_port: 2860
+ocp_cloud_dns_lb_hosts_v4: {}
+ocp_cloud_dns_lb_hosts_v6: {}
+ocp_cloud_dns_etcd_hosts_v4: {}
+ocp_cloud_dns_etcd_hosts_v6: {}
+ocp_cloud_dns_no_log: true
