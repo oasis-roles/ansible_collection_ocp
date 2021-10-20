@@ -109,7 +109,7 @@ jobs:
         run: |
           set -ex
           mv ansible_collections ~/work/
-          cd ~/work/"${{ env.checkout_path }}"
+          cd "~/work/${{ env.checkout_path }}"
           tox -e "${{ matrix.scenario }}"
 
   build:
@@ -143,7 +143,7 @@ jobs:
           # I haven't found any logic for it, but if you don't do this mv, then
           # the dependency step in molecule when run from tox will fail
           mv ansible_collections ~/work/
-          cd ~/work/"${{ env.checkout_path }}"
+          cd "~/work/${{ env.checkout_path }}"
           tox -e "${{ matrix.scenario }}"
 
   release:
