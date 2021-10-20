@@ -1,0 +1,41 @@
+- name: converge
+  hosts: ocp_install
+  gather_facts: false
+  vars:
+    # trailing slash is important here
+    ocp_installers_index_url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/
+    ocp_installers_index: "{{ query('url', ocp_installers_index_url) }}"
+    ocp_install_url: >-
+        {{ query('index_href', ocp_installers_index, 'install-linux',
+           base_url=ocp_installers_index_url) }}
+    ocp_install_generate_config: true
+    ocp_install_create_cluster: false
+    # bogus values for mandatory template vars when using default template
+    ocp_install_api_version: v1
+    ocp_install_base_domain: example.com
+    ocp_install_compute:
+      - hyperthreading: Enabled
+        name: worker
+        replicas: 0
+    ocp_install_control_plane:
+      hyperthreading: Enabled
+      name: master
+      replicas: 3
+    ocp_install_metadata:
+      name: test
+    ocp_install_networking:
+      clusterNetwork:
+        - cidr: 10.128.0.0/14
+          hostPrefix: 23
+      networkType: OpenShiftSDN
+      serviceNetwork:
+        - 172.30.0.0/16
+    ocp_install_platform:
+      none: {}
+    ocp_install_pull_secrets:
+      super: secret
+    ocp_install_config_dir: '/ocp_install'
+    ocp_install_ssh_pubkey: 'AAAAFakePubkey=='
+  roles:
+    - ocp_install
+    - oasis_roles.index_href

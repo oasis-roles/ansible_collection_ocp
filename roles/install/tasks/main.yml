@@ -1,0 +1,43 @@
+# basic input validation, including checks for mandatory vars
+# done at the start so broken configs fail fast
+- include_tasks: validation.yml
+
+- block:
+    # download and install tasks always run, idempotence is handled by the modules
+    - include_tasks: download_installer.yml
+
+    - include_tasks: generate_config.yml
+      when: ocp_install_generate_config
+
+    - include_tasks: credentials_aws.yml
+      when: ocp_install_aws_creds_file is defined
+
+    - include_tasks: credentials_azure.yml
+      when: ocp_install_azure_creds_file is defined
+
+    - include_tasks: credentials_gcp.yml
+      when: ocp_install_gcp_creds_file is defined
+
+    - include_tasks: credentials_openstack.yml
+      when: ocp_install_openstack_creds_file is defined
+
+    - name: Calculate async retries
+      set_fact:
+        ocp_install_async_retries: >-
+          {{ ocp_install_async_timeout // ocp_install_async_poll }}
+
+    # conditional post-install tasks
+    - include_tasks: create_cluster.yml
+      when: ocp_install_create_cluster
+
+    - include_tasks: destroy_cluster.yml
+      when: ocp_install_destroy_cluster
+
+    - include_tasks: create_manifests.yml
+      when: ocp_install_create_manifests
+
+    - include_tasks: create_ignition_configs.yml
+      when: ocp_install_create_ignition_configs
+
+  become: "{{ ocp_install_become }}"
+  become_user: "{{ ocp_install_become_user }}"

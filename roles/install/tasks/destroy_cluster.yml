@@ -1,0 +1,20 @@
+- name: Run openshift-install destroy cluster
+  # ansible-lint 301 should be ignored for this, since the conditional(s)
+  # deciding whether or not to run this task are on the include_task(s)
+  # that run this task, not on the task itself
+  # noqa 301
+  command: >-
+    {{ ocp_install_path }}/openshift-install destroy cluster
+    --dir "{{ ocp_install_config_dir }}"
+    --log-level "{{ ocp_install_log_level }}"
+  async: "{{ ocp_install_async_timeout }}"
+  poll: 0
+  register: ocp_install_destroy_cluster_async
+
+- name: Poll openshift-install destroy cluster task status
+  async_status:
+    jid: "{{ ocp_install_destroy_cluster_async.ansible_job_id }}"
+  register: ocp_install_destroy_cluster_result
+  until: ocp_install_destroy_cluster_result is finished
+  delay: "{{ ocp_install_async_poll }}"
+  retries: "{{ ocp_install_async_retries }}"

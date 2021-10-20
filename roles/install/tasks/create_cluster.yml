@@ -1,0 +1,22 @@
+- block:
+    - name: Run openshift-install create cluster
+      command: >-
+        {{ ocp_install_path }}/openshift-install create cluster
+        --dir "{{ ocp_install_config_dir }}"
+        --log-level "{{ ocp_install_log_level }}"
+      async: "{{ ocp_install_async_timeout }}"
+      poll: 0
+      when: ocp_install_create_cluster
+      register: ocp_install_create_cluster_async
+
+    - name: Poll openshift-install create cluster task status
+      async_status:
+        jid: "{{ ocp_install_create_cluster_async.ansible_job_id }}"
+      register: ocp_install_create_cluster_result
+      until: ocp_install_create_cluster_result is finished
+      delay: "{{ ocp_install_async_poll }}"
+      retries: "{{ ocp_install_async_retries }}"
+  rescue:
+    - name: Run openshift-install destroy cluster
+      include_tasks: destroy_cluster.yml
+      when: ocp_install_destroy_cluster_on_failure
