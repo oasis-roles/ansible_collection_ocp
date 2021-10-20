@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/oasis-roles/ocp_cloud_dns.svg?branch=master)](https://travis-ci.com/oasis-roles/ocp_cloud_dns)
-
 ocp_cloud_dns
 =============
 
@@ -110,7 +108,7 @@ zone to delegate authority to the new zone.
 ```yaml
 - hosts: ocp_cloud_dns-servers
   roles:
-    - role: oasis_roles.ocp_cloud_dns
+    - role: oasis_roles.ocp.cloud_dns
   vars:
     ocp_cloud_dns_state: present
     ocp_cloud_dns_create_zone: true
@@ -143,7 +141,7 @@ zone to delegate authority to the new zone.
       name: gcpdnszone-molecule
       description: Test zone for gcp_dns_zone role default molecule scenario
   roles:
-    - role: ocp_cloud_dns
+    - role: oasis_roles.ocp.cloud_dns
 ```
 
 License
