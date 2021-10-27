@@ -391,6 +391,5 @@ Sean Myers <semyers@redhat.com>
 [the default template]: https://github.com/oasis-roles/ansible_collection_ocp/blob/main/roles/install/templates/ocp_install_default_config.yaml.j2
 [Examples]: #example-playbooks
 [openshift-install customization]: https://github.com/openshift/installer/blob/master/docs/user/customization.md#platform-customization
-[index_href]: https://github.com/oasis-roles/index_href
 [ocp_pull_secrets]: https://github.com/oasis-roles/ocp_pull_secrets
 [clouds.yaml]: https://access.redhat.com/documentation/en-us/openshift_container_platform/4.2/html/installing_on_openstack/installing-on-openstack#installation-osp-describing-cloud-parameters_installing-openstack-installer-custom
