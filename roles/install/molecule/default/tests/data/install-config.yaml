@@ -1,3 +1,4 @@
+# yamllint disable
 # Custom ansible_managed string for testing
 apiVersion: v1
 baseDomain: example.com
@@ -13,11 +14,11 @@ metadata:
   name: test
 networking:
   clusterNetwork:
-    - cidr: 10.128.0.0/14
-      hostPrefix: 23
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
   networkType: OpenShiftSDN
   serviceNetwork:
-    - 172.30.0.0/16
+  - 172.30.0.0/16
 platform:
   none: {}
 pullSecret: |-

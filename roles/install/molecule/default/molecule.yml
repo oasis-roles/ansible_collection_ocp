@@ -6,3 +6,6 @@ platforms:
 provisioner:
   playbooks:
     converge: playbook.yml
+  config_options:
+    defaults:
+      ansible_managed: Custom ansible_managed string for testing

@@ -6,7 +6,7 @@
     ocp_installers_index_url: https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/
     ocp_installers_index: "{{ query('url', ocp_installers_index_url) }}"
     ocp_install_url: >-
-        {{ query('index_href', ocp_installers_index, 'install-linux',
+        {{ query('oasis_roles.ocp.index_href', ocp_installers_index, 'install-linux',
            base_url=ocp_installers_index_url) }}
     ocp_install_generate_config: true
     ocp_install_create_cluster: false
