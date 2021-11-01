@@ -56,7 +56,7 @@ jobs:
     needs:
       - collect
     uses: oasis-roles/meta_test/.github/workflows/vagrant_build.yml@master
-    if: needs.collect.outputs.vagrant_scenarios != ''
+    if: needs.collect.outputs.vagrant_scenarios != '[]'
     with:
       checkout_path: oasis_roles/ocp
       scenarios: "${{ needs.collect.outputs.vagrant_scenarios }}"
