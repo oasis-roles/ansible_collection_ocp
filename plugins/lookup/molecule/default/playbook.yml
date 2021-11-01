@@ -17,10 +17,8 @@
 - name: Test parsing index hrefs with substring and content list
   hosts: all
   gather_facts: false
-  roles:
-    - index_href
   vars:
-    href: "{{ query('index_href', content_list, match_substr, base_url=base_url) }}"
+    href: "{{ query('oasis_roles.ocp.index_href', content_list, match_substr, base_url=base_url) }}"
   tasks:
     - name: Assert expected href is generated
       assert:
@@ -32,10 +30,8 @@
 - name: Test parsing index hrefs with substring and content string
   hosts: all
   gather_facts: false
-  roles:
-    - index_href
   vars:
-    href: "{{ query('index_href', content_str, match_substr, base_url=base_url) }}"
+    href: "{{ query('oasis_roles.ocp.index_href', content_str, match_substr, base_url=base_url) }}"
   tasks:
     - name: Assert expected href is generated
       assert:
@@ -47,10 +43,8 @@
 - name: Test parsing index hrefs with regex and content list
   hosts: all
   gather_facts: false
-  roles:
-    - index_href
   vars:
-    href: "{{ query('index_href', content_list, match_regex, base_url=base_url, regex=true) }}"
+    href: "{{ query('oasis_roles.ocp.index_href', content_list, match_regex, base_url=base_url, regex=true) }}"
   tasks:
     - name: Assert expected href is generated
       assert:
@@ -62,10 +56,8 @@
 - name: Test parsing index hrefs with regex and content string
   hosts: all
   gather_facts: false
-  roles:
-    - index_href
   vars:
-    href: "{{ query('index_href', content_str, match_regex, base_url=base_url, regex=true) }}"
+    href: "{{ query('oasis_roles.ocp.index_href', content_str, match_regex, base_url=base_url, regex=true) }}"
   tasks:
     - name: Assert expected href is generated
       assert:
@@ -77,11 +69,9 @@
 - name: Test parsing index hrefs with substring without base url
   hosts: all
   gather_facts: false
-  roles:
-    - index_href
   vars:
     # base_url excluded
-    href: "{{ query('index_href', content_str, match_substr) }}"
+    href: "{{ query('oasis_roles.ocp.index_href', content_str, match_substr) }}"
   tasks:
     - name: Assert expected href is generated
       assert:

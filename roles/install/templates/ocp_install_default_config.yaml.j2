@@ -24,27 +24,27 @@ apiVersion: {{ ocp_install_api_version | mandatory }}
 baseDomain: {{ ocp_install_base_domain | mandatory }}
 {% if ocp_install_compute is defined %}
 compute:
-  {{ ocp_install_compute | ocp_install_yaml }}
+  {{ ocp_install_compute | oasis_roles.ocp.ocp_install_yaml }}
 {% endif -%}
 {% if ocp_install_control_plane is defined %}
 controlPlane:
-  {{ ocp_install_control_plane | ocp_install_yaml }}
+  {{ ocp_install_control_plane | oasis_roles.ocp.ocp_install_yaml }}
 {% endif -%}
 {% if ocp_install_fips is defined %}
 fips: {{ ocp_install_fips | bool }}
 {% endif -%}
 {% if ocp_install_image_content_sources is defined %}
 imageContentSources:
-  {{ ocp_install_image_content_sources | ocp_install_yaml }}
+  {{ ocp_install_image_content_sources | oasis_roles.ocp.ocp_install_yaml }}
 {% endif -%}
 metadata:
-  {{ ocp_install_metadata | ocp_install_yaml(True) }}
+  {{ ocp_install_metadata | oasis_roles.ocp.ocp_install_yaml(True) }}
 {% if ocp_install_networking is defined %}
 networking:
-  {{ ocp_install_networking | ocp_install_yaml }}
+  {{ ocp_install_networking | oasis_roles.ocp.ocp_install_yaml }}
 {% endif -%}
 platform:
-  {{ ocp_install_platform | ocp_install_yaml(True) }}
+  {{ ocp_install_platform | oasis_roles.ocp.ocp_install_yaml(True) }}
 {% if ocp_install_proxy is defined %}
 proxy: {{ ocp_install_proxy }}
 {% endif -%}
@@ -52,7 +52,7 @@ proxy: {{ ocp_install_proxy }}
 publish: {{ ocp_install_publish }}
 {% endif -%}
 pullSecret: |-
-  {{ ocp_install_pull_secrets | ocp_install_json(True) }}
+  {{ ocp_install_pull_secrets | oasis_roles.ocp.ocp_install_json(True) }}
 {% if ocp_install_ssh_pubkey is defined %}
 sshKey: {{ ocp_install_ssh_pubkey }}
 {% endif -%}
