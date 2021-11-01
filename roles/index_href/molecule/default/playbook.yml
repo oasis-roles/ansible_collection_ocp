@@ -1,0 +1,91 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Set up test facts
+      set_fact:
+        base_url: https://image.host/path/to/images/
+        expected_absolute_url: https://image.host/path/to/images/prod-versionstring-vmware.ova
+        expected_relative_url: prod-versionstring-vmware.ova
+        match_substr: vmware.ova
+        match_regex: vmw.*ova
+        content_list: >
+          {{ query('url', 'file://{{ playbook_dir }}/test_index.html') }}
+        content_str: >
+          {{ query('url', 'file://{{ playbook_dir }}/test_index.html',
+             split_lines=false) }}
+
+- name: Test parsing index hrefs with substring and content list
+  hosts: all
+  gather_facts: false
+  roles:
+    - index_href
+  vars:
+    href: "{{ query('index_href', content_list, match_substr, base_url=base_url) }}"
+  tasks:
+    - name: Assert expected href is generated
+      assert:
+        that:
+          - href == expected_absolute_url
+        msg: >
+          expected {{ expected_absolute_url }}, got {{ href }}
+
+- name: Test parsing index hrefs with substring and content string
+  hosts: all
+  gather_facts: false
+  roles:
+    - index_href
+  vars:
+    href: "{{ query('index_href', content_str, match_substr, base_url=base_url) }}"
+  tasks:
+    - name: Assert expected href is generated
+      assert:
+        that:
+          - href == expected_absolute_url
+        msg: >
+          expected {{ expected_absolute_url }}, got {{ href }}
+
+- name: Test parsing index hrefs with regex and content list
+  hosts: all
+  gather_facts: false
+  roles:
+    - index_href
+  vars:
+    href: "{{ query('index_href', content_list, match_regex, base_url=base_url, regex=true) }}"
+  tasks:
+    - name: Assert expected href is generated
+      assert:
+        that:
+          - href == expected_absolute_url
+        msg: >
+          expected {{ expected_absolute_url }}, got {{ href }}
+
+- name: Test parsing index hrefs with regex and content string
+  hosts: all
+  gather_facts: false
+  roles:
+    - index_href
+  vars:
+    href: "{{ query('index_href', content_str, match_regex, base_url=base_url, regex=true) }}"
+  tasks:
+    - name: Assert expected href is generated
+      assert:
+        that:
+          - href == expected_absolute_url
+        msg: >
+          expected {{ expected_absolute_url }}, got {{ href }}
+
+- name: Test parsing index hrefs with substring without base url
+  hosts: all
+  gather_facts: false
+  roles:
+    - index_href
+  vars:
+    # base_url excluded
+    href: "{{ query('index_href', content_str, match_substr) }}"
+  tasks:
+    - name: Assert expected href is generated
+      assert:
+        that:
+          - href == expected_relative_url
+        msg: >
+          expected {{ expected_relative_url }}, got {{ href }}
