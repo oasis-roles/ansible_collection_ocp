@@ -65,7 +65,7 @@ jobs:
     needs:
       - collect
     uses: oasis-roles/meta_test/.github/workflows/container_build.yml@master
-    if: needs.collect.outputs.scenarios != ''
+    if: needs.collect.outputs.scenarios != '[]'
     with:
       checkout_path: oasis_roles/ocp
       scenarios: "${{ needs.collect.outputs.scenarios }}"
