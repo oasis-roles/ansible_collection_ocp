@@ -45,8 +45,6 @@ jobs:
 
   lint:
     uses: oasis-roles/meta_test/.github/workflows/lint.yml@master
-    with:
-      checkout_path: oasis_roles/ocp
 
   container_build:
     needs:
@@ -54,7 +52,6 @@ jobs:
     uses: oasis-roles/meta_test/.github/workflows/container_build.yml@master
     if: needs.collect.outputs.scenarios != '[]'
     with:
-      checkout_path: oasis_roles/ocp
       scenarios: "${{ needs.collect.outputs.scenarios }}"
 
   release:
