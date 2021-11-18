@@ -8,6 +8,7 @@
       file:
         state: directory
         path: "{{ ocp_client_install_tmpdir }}"
+        mode: u+wx
 
     - name: Determine local install archive filename
       set_fact:
