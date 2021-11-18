@@ -1,0 +1,63 @@
+- block:
+    - name: Check required vars for downloading installer
+      assert:
+        that: ocp_client_install_url is defined
+        msg: ocp_client_install_url var must be defined to continue
+
+    - name: Ensure download location exists
+      file:
+        state: directory
+        path: "{{ ocp_client_install_tmpdir }}"
+
+    - name: Determine local install archive filename
+      set_fact:
+        ocp_client_install_archive_filename: >-
+         {{ ocp_client_install_url | urlsplit('path') | basename }}
+
+    - name: Determine local install absolute path
+      set_fact:
+        ocp_client_install_archive_path: >-
+         {{ '/'.join([ocp_client_install_tmpdir, ocp_client_install_archive_filename]) }}
+
+    - name: Download install archive
+      get_url:
+        url: "{{ ocp_client_install_url }}"
+        dest: "{{ ocp_client_install_archive_path }}"
+
+    - name: Unpack install archive
+      unarchive:
+        remote_src: true
+        src: "{{ ocp_client_install_archive_path }}"
+        dest: "{{ ocp_client_install_tmpdir }}"
+
+    - name: Inspect unpacked archive structure
+      stat:
+        path: "{{ '/'.join([ocp_client_install_tmpdir, item]) }}"
+      loop:
+        - oc
+        - kubectl
+      register: ocp_client_install_stat
+
+    - name: Ensure archive structure matches role expectations
+      assert:
+        that: item.stat.exists
+      loop: "{{ ocp_client_install_stat.results }}"
+
+    - name: Install binaries
+      copy:
+        remote_src: true
+        src: "{{ '/'.join([ocp_client_install_tmpdir, item]) }}"
+        dest: "{{ '/'.join([ocp_client_install_path, item]) }}"
+        mode: 0o0755
+      loop:
+        - oc
+        - kubectl
+
+    - name: Clean up temporary directory
+      file:
+        state: absent
+        path: "{{ ocp_client_install_tmpdir }}"
+      when: ocp_client_install_cleanup
+
+  become: "{{ ocp_client_install_become }}"
+  become_user: "{{ ocp_client_install_become_user }}"

@@ -1,0 +1,5 @@
+ocp_client_install_path: /usr/local/bin/
+ocp_client_install_tmpdir: /tmp/ocp_client_install
+ocp_client_install_cleanup: false
+ocp_client_install_become: true
+ocp_client_install_become_user: root
