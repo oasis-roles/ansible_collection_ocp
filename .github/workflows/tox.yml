@@ -58,7 +58,7 @@ jobs:
     needs:
       - container_build
       - lint
-    if: github.event_type == 'release'
+    if: github.event_name == 'release'
     uses: oasis-roles/meta_test/.github/workflows/release.yml@master
     secrets:
       galaxy_api_key: "${{ secrets.GALAXY_API_KEY }}"
