@@ -2,7 +2,7 @@
   gcp_dns_managed_zone:
     # these params are required, and not defaulted
     description: "{{ ocp_cloud_dns_gcp_zone.description }}"
-    dns_name: "{{ ocp_cloud_dns_domain | zonedot }}"
+    dns_name: "{{ ocp_cloud_dns_domain | oasis_roles.ocp.zonedot }}"
     name: "{{ ocp_cloud_dns_gcp_zone.name }}"
     # these params are optional, and defaulted to omit
     dnssec_config: "{{ ocp_cloud_dns_gcp_zone.dnssec_config | default(omit) }}"
@@ -33,7 +33,7 @@
     # DNS implicit trailing '.' is expected to be implicit in GCP,
     # so the custom "zonedot" filter is used to ensure the dot exists
     # when it should, and doesn't when it shouldn't.
-    dns_name: "{{ ocp_cloud_dns_domain | zonedot }}"
+    dns_name: "{{ ocp_cloud_dns_domain | oasis_roles.ocp.zonedot }}"
     # gcp common/auth
     auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
     env_type: "{{ ocp_cloud_dns_gcp.env_type  | default(omit) }}"
@@ -63,7 +63,7 @@
 - block:
     - name: Gather info about parent domain
       gcp_dns_managed_zone_info:
-        dns_name: "{{ ocp_cloud_dns_parent_domain | zonedot }}"
+        dns_name: "{{ ocp_cloud_dns_parent_domain | oasis_roles.ocp.zonedot }}"
         # gcp common/auth
         auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
         env_type: "{{ ocp_cloud_dns_gcp.env_type  | default(omit) }}"
@@ -77,7 +77,7 @@
     - name: Add delegation from parent zone to cluster zone
       gcp_dns_resource_record_set:
         # feed the output of managed_zone into this to set up delegation
-        name: "{{ ocp_cloud_dns_domain | zonedot }}"
+        name: "{{ ocp_cloud_dns_domain | oasis_roles.ocp.zonedot }}"
         # zone_info always returns a list of resources, but only one zone
         # was requests, so resources.0 is the parent zone info
         managed_zone: "{{ ocp_cloud_dns_parent_info.resources.0 }}"
@@ -102,7 +102,7 @@
     state: "{{ ocp_cloud_dns_state }}"
     type: "{{ item.0.type }}"
     ttl: "{{ ocp_cloud_dns_ttl }}"
-    name: "{{ item.1.key }}.{{ ocp_cloud_dns_domain | zonedot }}"
+    name: "{{ item.1.key }}.{{ ocp_cloud_dns_domain | oasis_roles.ocp.zonedot }}"
     target: "{{ item.1.value }}"
     # gcp common/auth
     auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
@@ -132,7 +132,7 @@
       {{ ocp_cloud_dns_srv_priority }}
       {{ ocp_cloud_dns_srv_weight }}
       {{ ocp_cloud_dns_srv_port }}
-      {{ item.key }}.{{ ocp_cloud_dns_domain | zonedot }}
+      {{ item.key }}.{{ ocp_cloud_dns_domain | oasis_roles.ocp.zonedot }}
   loop: >-
     {{ ocp_cloud_dns_etcd_hosts_v4 |
        combine(ocp_cloud_dns_etcd_hosts_v6) |
@@ -150,7 +150,7 @@
     state: "{{ ocp_cloud_dns_state }}"
     type: SRV
     ttl: "{{ ocp_cloud_dns_ttl }}"
-    name: "_etcd-server-ssl._tcp.{{ ocp_cloud_dns_domain | zonedot }}"
+    name: "_etcd-server-ssl._tcp.{{ ocp_cloud_dns_domain | oasis_roles.ocp.zonedot }}"
     target: "{{ __combined_srv_rrsets }}"
     # gcp common/auth
     auth_kind: "{{ ocp_cloud_dns_gcp.auth_kind  | default(omit) }}"
@@ -166,7 +166,7 @@
   gcp_dns_managed_zone:
     # these params are required, and not defaulted
     description: "{{ ocp_cloud_dns_gcp_zone.description }}"
-    dns_name: "{{ ocp_cloud_dns_domain | zonedot }}"
+    dns_name: "{{ ocp_cloud_dns_domain | oasis_roles.ocp.zonedot }}"
     name: "{{ ocp_cloud_dns_gcp_zone.name }}"
     # these params are optional, and defaulted to omit
     dnssec_config: "{{ ocp_cloud_dns_gcp_zone.dnssec_config | default(omit) }}"
